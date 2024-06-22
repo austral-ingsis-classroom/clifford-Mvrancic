@@ -1,6 +1,7 @@
 package edu.austral.ingsis.clifford;
 
-public interface Command {
-    void execute();
+import java.util.List;
 
+public interface Command {
+    String execute(List<String> parameters);
 }

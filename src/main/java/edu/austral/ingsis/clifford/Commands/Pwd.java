@@ -2,8 +2,12 @@ package edu.austral.ingsis.clifford.Commands;
 
 import edu.austral.ingsis.clifford.Command;
 
+import java.util.List;
+
 public class Pwd implements Command {
-  @Override
-  public void execute() {
-  }
+
+      @Override
+      public String execute(List<String> parameters) {
+     return null;
+      }
 }
