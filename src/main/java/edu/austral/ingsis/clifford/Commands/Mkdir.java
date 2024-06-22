@@ -1,19 +1,23 @@
 package edu.austral.ingsis.clifford.Commands;
 
-import edu.austral.ingsis.clifford.CLI;
 import edu.austral.ingsis.clifford.Command;
-
-import java.util.List;
+import edu.austral.ingsis.clifford.Directory;
 
 public class Mkdir implements Command {
-  private final CLI cli;
+  private final Directory currentDirectory;
+  private final String dirname;
 
-  public Mkdir(CLI cli) {
-    this.cli = cli;
+  public Mkdir(Directory currentDirectory, String dirname) {
+    this.currentDirectory = currentDirectory;
+    this.dirname = dirname;
   }
 
   @Override
-  public String execute(List<String> parameters) {
-    return cli.createDirectory(parameters.getFirst(), cli.currentDirectory);
+  public String execute() {
+    if (dirname.contains(" ") || dirname.contains("/")) {
+      throw new IllegalArgumentException("Invalid directory name");
+    }
+    Directory newDir = new Directory(dirname, currentDirectory);
+    return currentDirectory.addChild(newDir);
   }
 }

@@ -1,13 +1,19 @@
 package edu.austral.ingsis.clifford.Commands;
 
 import edu.austral.ingsis.clifford.Command;
-
-import java.util.List;
+import edu.austral.ingsis.clifford.Directory;
 
 public class Pwd implements Command {
+  private final Directory root;
+  private final Directory currentDirectory;
 
-      @Override
-      public String execute(List<String> parameters) {
-     return null;
-      }
+  public Pwd(Directory root, Directory currentDirectory) {
+    this.root = root;
+    this.currentDirectory = currentDirectory;
+  }
+
+  @Override
+  public String execute() {
+    return currentDirectory.getPath();
+  }
 }
