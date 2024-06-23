@@ -28,13 +28,13 @@ public class Directory implements FileSystem {
     }
 
     @Override
-    public String getPath() {
-        if (parent == null) {
-            return "/" + name;
-        } else {
-            return parent.getPath() + "" + name;
-        }
+public String getPath() {
+    if (parent == null) {
+        return "/" + name;
+    } else {
+        return parent.getPath() + name;
     }
+}
 
     public Directory getParent() {
         return parent;

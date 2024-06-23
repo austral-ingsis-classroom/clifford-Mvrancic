@@ -14,9 +14,8 @@ public class Cd implements Command {
 
     @Override
     public String execute(String[] args) {
-
         String dirName = args[0];
-        if (dirName.equals("")) {
+        if (dirName.equals("/")) {
             currentDirectory = rootDirectory;
             return "moved to directory '/'";
         }
@@ -24,9 +23,9 @@ public class Cd implements Command {
         if (dirName.equals("..")) {
             if (currentDirectory.getParent() != null) {
                 currentDirectory = currentDirectory.getParent();
-                return "moved to directory '/" + currentDirectory.getName() + "'";
+                return "moved to directory '" + currentDirectory.getPath() + "'";
             } else {
-                return "Error: Already at root directory";
+                return "moved to directory '/'";
             }
         }
 
@@ -34,12 +33,14 @@ public class Cd implements Command {
             String[] path = dirName.split("/");
             Directory child = rootDirectory;
             for (String part : path) {
-                child = child.findDirectoryByName(part);
-                if (child == null) {
+                Directory nextChild = child.findDirectoryByName(part);
+                if (nextChild == null) {
                     return "'" + part + "' directory does not exist";
                 }
+                child = nextChild;
             }
             currentDirectory = child;
+            dirName = child.getName();
             return "moved to directory '" + dirName + "'";
         } else {
             Directory child = currentDirectory.findDirectoryByName(dirName);
