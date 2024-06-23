@@ -4,22 +4,14 @@ import edu.austral.ingsis.clifford.Command;
 import edu.austral.ingsis.clifford.Directory;
 
 public class Pwd implements Command {
-  private final Directory root;
-  private final Directory currentDirectory;
+    private final Directory currentDirectory;
 
-  public Pwd(Directory root, Directory currentDirectory) {
-    this.root = root;
-    this.currentDirectory = currentDirectory;
-  }
+    public Pwd(Directory currentDirectory) {
+        this.currentDirectory = currentDirectory;
+    }
 
-  @Override
-  public String execute() {
-    return currentDirectory.getPath();
-  }
-
-  @Override
-  public String execute(String[] args) {
-    // Pwd command does not require arguments
-    return execute();
-  }
+    @Override
+    public String execute(String[] args) {
+        return currentDirectory.getPath();
+    }
 }

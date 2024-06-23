@@ -6,28 +6,20 @@ import edu.austral.ingsis.clifford.Directory;
 import java.util.List;
 
 public class Ls implements Command {
-  private final Directory currentDirectory;
-  private final String order;
+    private final Directory currentDirectory;
 
-  public Ls(Directory currentDirectory, String order) {
-    this.currentDirectory = currentDirectory;
-    this.order = order;
-  }
-
-  @Override
-  public String execute() {
-    List<String> items = currentDirectory.listItems(order);
-    return String.join(" ", items);
-  }
-
-  @Override
-  public String execute(String[] args) {
-    if (args.length > 0 && args[0].startsWith("--ord=")) {
-      String order = args[0].substring(6);
-      List<String> items = currentDirectory.listItems(order);
-      return String.join(" ", items);
-    } else {
-      return execute();
+    public Ls(Directory currentDirectory) {
+        this.currentDirectory = currentDirectory;
     }
-  }
+
+    @Override
+    public String execute(String[] args) {
+        if (args.length > 0 && args[0].equals("--ord=asc")) {
+            return String.join(" ", currentDirectory.listItems("asc"));
+        } else if (args.length > 0 && args[0].equals("--ord=desc")) {
+            return String.join(" ", currentDirectory.listItems("desc"));
+        } else {
+            return String.join(" ", currentDirectory.listItems(null));
+        }
+    }
 }

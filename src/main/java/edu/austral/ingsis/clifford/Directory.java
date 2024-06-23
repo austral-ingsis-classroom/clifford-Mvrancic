@@ -68,7 +68,7 @@ public class Directory implements FileSystem {
         return (Directory) findChildByName(name);
     }
 
-    FileSystem findChildByName(String name) {
+    public FileSystem findChildByName(String name) {
         for (FileSystem child : children) {
             if (child.getName().equals(name)) {
                 return child;
@@ -92,5 +92,13 @@ public class Directory implements FileSystem {
         }
         return items;
     }
+    public Directory findDirectoryByName(String name) {
+    for (FileSystem child : children) {
+        if (child instanceof Directory && child.getName().equals(name)) {
+            return (Directory) child;
+        }
+    }
+    return null;
+}
 
 }

@@ -5,24 +5,19 @@ import edu.austral.ingsis.clifford.Directory;
 import edu.austral.ingsis.clifford.File;
 
 public class Touch implements Command {
-  private final Directory currentDirectory;
-  private final String filename;
+    private final Directory currentDirectory;
 
-  public Touch(Directory currentDirectory, String filename) {
-    this.currentDirectory = currentDirectory;
-    this.filename = filename;
-  }
+    public Touch(Directory currentDirectory) {
+        this.currentDirectory = currentDirectory;
+    }
 
-  @Override
-  public String execute() {
-    File newFile = new File(filename, currentDirectory);
-    currentDirectory.addChild(newFile);
-    return "'" + filename + "' file created";
-  }
-
-  @Override
-  public String execute(String[] args) {
-    // Touch command does not require arguments
-    return execute();
-  }
+    @Override
+    public String execute(String[] args) {
+        if (args.length > 0) {
+            String fileName = args[0];
+            File newFile = new File(fileName, currentDirectory);
+            return currentDirectory.addChild(newFile);
+        }
+        return "Invalid command";
+    }
 }

@@ -4,47 +4,55 @@ import edu.austral.ingsis.clifford.Command;
 import edu.austral.ingsis.clifford.Directory;
 
 public class Cd implements Command {
-  private final Directory root;
-  private Directory currentDirectory;
-  private String path;
+    private static Directory currentDirectory;
+    private final Directory rootDirectory;
 
-  public Cd(Directory root, Directory currentDirectory, String path) {
-    this.root = root;
-    this.currentDirectory = currentDirectory;
-    this.path = path;
-  }
-
-  @Override
-  public String execute() {
-    Directory targetDirectory = resolvePath(path);
-    if (targetDirectory != null) {
-      currentDirectory = targetDirectory; // Update current directory
-      return "Moved to directory: '" + targetDirectory.getName() + "'";
-    } else {
-      throw new IllegalArgumentException("Invalid directory");
+    public Cd(Directory currentDirectory, Directory rootDirectory) {
+        Cd.currentDirectory = currentDirectory;
+        this.rootDirectory = rootDirectory;
     }
-  }
 
-  @Override
-  public String execute(String[] args) {
-    if (args.length != 1) {
-      throw new IllegalArgumentException("Invalid arguments");
+    @Override
+    public String execute(String[] args) {
+
+        String dirName = args[0];
+        if (dirName.equals("")) {
+            currentDirectory = rootDirectory;
+            return "moved to directory '/'";
+        }
+
+        if (dirName.equals("..")) {
+            if (currentDirectory.getParent() != null) {
+                currentDirectory = currentDirectory.getParent();
+                return "moved to directory '/" + currentDirectory.getName() + "'";
+            } else {
+                return "Error: Already at root directory";
+            }
+        }
+
+        if (dirName.contains("/")) {
+            String[] path = dirName.split("/");
+            Directory child = rootDirectory;
+            for (String part : path) {
+                child = child.findDirectoryByName(part);
+                if (child == null) {
+                    return "'" + part + "' directory does not exist";
+                }
+            }
+            currentDirectory = child;
+            return "moved to directory '" + dirName + "'";
+        } else {
+            Directory child = currentDirectory.findDirectoryByName(dirName);
+            if (child != null) {
+                currentDirectory = child;
+                return "moved to directory '" + dirName + "'";
+            } else {
+                return "'" + dirName + "' directory does not exist";
+            }
+        }
     }
-    return execute(args[0]);
-  }
 
-  public String execute(String newPath) {
-    this.path = newPath;
-    return execute();
-  }
-
-  private Directory resolvePath(String path) {
-    if (path.equals("..")) {
-      return currentDirectory.getParent();
-    } else if (path.equals(".")) {
-      return currentDirectory;
-    } else {
-      return currentDirectory.getChildByName(path);
+    public static Directory getCurrentDirectory() {
+        return currentDirectory;
     }
-  }
 }
