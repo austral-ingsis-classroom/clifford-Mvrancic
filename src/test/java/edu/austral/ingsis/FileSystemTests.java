@@ -8,7 +8,6 @@ import edu.austral.ingsis.clifford.Directory;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.Test;
 
 public class FileSystemTests {
@@ -16,14 +15,15 @@ public class FileSystemTests {
   private final FileSystemRunner runner = new MyTestRunner(new CLI(new Directory("")));
 
   private void executeTest(List<Map.Entry<String, String>> commandsAndResults) {
-    final List<String> commands = commandsAndResults.stream().map(Map.Entry::getKey).collect(Collectors.toList());
+    final List<String> commands =
+        commandsAndResults.stream().map(Map.Entry::getKey).collect(Collectors.toList());
     final List<String> expectedResult =
         commandsAndResults.stream().map(Map.Entry::getValue).collect(Collectors.toList());
 
     final List<String> actualResult = runner.executeCommands(commands);
 
     assertEquals(expectedResult, actualResult);
-}
+  }
 
   @Test
   public void test1() {
