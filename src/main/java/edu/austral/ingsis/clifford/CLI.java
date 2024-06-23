@@ -25,22 +25,15 @@ public class CLI {
     String cmd = parts[0];
     String[] args = Arrays.copyOfRange(parts, 1, parts.length);
 
-    switch (cmd) {
-      case "ls":
-        return listItems(args);
-      case "mkdir":
-        return makeDirectory(args);
-      case "cd":
-        return changeDirectory(args);
-      case "pwd":
-        return printWorkingDirectory();
-      case "touch":
-        return createFile(args);
-      case "rm":
-        return remove(args);
-      default:
-        return "Unknown command";
-    }
+    return switch (cmd) {
+      case "ls" -> listItems(args);
+      case "mkdir" -> makeDirectory(args);
+      case "cd" -> changeDirectory(args);
+      case "pwd" -> printWorkingDirectory();
+      case "touch" -> createFile(args);
+      case "rm" -> remove(args);
+      default -> "Unknown command";
+    };
   }
 
   private String listItems(String[] args) {
@@ -58,10 +51,12 @@ public class CLI {
       String name = args[0];
       Directory newDir = new Directory(name, currentDirectory);
       String result = currentDirectory.addChild(newDir);
-      return result;
+      return result; // Asegura que addChild en Directory devuelve el mensaje correcto
     }
     return "Invalid command";
   }
+
+
 
   private String changeDirectory(String[] args) {
     if (args.length > 0) {
@@ -84,16 +79,17 @@ public class CLI {
   }
 
   private String printWorkingDirectory() {
-    return currentDirectory.getPath();
+    String path = currentDirectory.getPath();
+    return path;
   }
+
 
   private String createFile(String[] args) {
     if (args.length > 0) {
       String fileName = args[0];
-      // Assume creating a file here, adjust as per your File implementation
       File newFile = new File(fileName, currentDirectory);
       String result = currentDirectory.addChild(newFile);
-      return result;
+      return result; // Asegura que addChild en Directory devuelve el mensaje correcto
     }
     return "Invalid command";
   }
@@ -118,4 +114,5 @@ public class CLI {
     }
     return "Invalid command";
   }
+
 }

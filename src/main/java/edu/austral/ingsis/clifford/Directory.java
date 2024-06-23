@@ -32,7 +32,7 @@ public class Directory implements FileSystem {
         if (parent == null) {
             return "/" + name;
         } else {
-            return parent.getPath() + "/" + name;
+            return parent.getPath() + "" + name;
         }
     }
 
@@ -40,17 +40,24 @@ public class Directory implements FileSystem {
         return parent;
     }
 
-    public List<FileSystem> getChildren() {
-        return children;
-    }
-
     public String addChild(FileSystem fileSystem) {
         if (findChildByName(fileSystem.getName()) != null) {
-            return "'" + fileSystem.getName() + "' directory already exists";
+            return "Error: Directory or file already exists";
         }
-        children.add(fileSystem);
-        return "'" + fileSystem.getName() + "' directory created";
+
+        if (fileSystem instanceof Directory) {
+            children.add(fileSystem);
+            return "'" + fileSystem.getName() + "' directory created";
+        } else if (fileSystem instanceof File) {
+            children.add(fileSystem);
+            return "'" + fileSystem.getName() + "' file created";
+        }
+
+        return "Unknown type";
     }
+
+
+
 
     public void removeChild(FileSystem fileSystem) {
         children.remove(fileSystem);
