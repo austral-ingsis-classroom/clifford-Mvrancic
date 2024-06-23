@@ -19,4 +19,15 @@ public class Ls implements Command {
     List<String> items = currentDirectory.listItems(order);
     return String.join(" ", items);
   }
+
+  @Override
+  public String execute(String[] args) {
+    if (args.length > 0 && args[0].startsWith("--ord=")) {
+      String order = args[0].substring(6);
+      List<String> items = currentDirectory.listItems(order);
+      return String.join(" ", items);
+    } else {
+      return execute();
+    }
+  }
 }

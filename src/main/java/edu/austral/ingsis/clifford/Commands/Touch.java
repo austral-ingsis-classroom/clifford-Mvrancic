@@ -15,10 +15,14 @@ public class Touch implements Command {
 
   @Override
   public String execute() {
-    if (filename.contains(" ") || filename.contains("/")) {
-      throw new IllegalArgumentException("Invalid filename");
-    }
     File newFile = new File(filename, currentDirectory);
-    return currentDirectory.addChild(newFile);
+    currentDirectory.addChild(newFile);
+    return "'" + filename + "' file created";
+  }
+
+  @Override
+  public String execute(String[] args) {
+    // Touch command does not require arguments
+    return execute();
   }
 }

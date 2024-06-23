@@ -16,4 +16,10 @@ public class Pwd implements Command {
   public String execute() {
     return currentDirectory.getPath();
   }
+
+  @Override
+  public String execute(String[] args) {
+    // Pwd command does not require arguments
+    return execute();
+  }
 }

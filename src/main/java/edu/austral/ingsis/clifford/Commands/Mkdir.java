@@ -14,10 +14,13 @@ public class Mkdir implements Command {
 
   @Override
   public String execute() {
-    if (dirname.contains(" ") || dirname.contains("/")) {
-      throw new IllegalArgumentException("Invalid directory name");
-    }
-    Directory newDir = new Directory(dirname, currentDirectory);
-    return currentDirectory.addChild(newDir);
+    Directory newDir = new Directory(dirname);
+    currentDirectory.addChild(newDir);
+    return "'" + dirname + "' directory created";
+  }
+
+  @Override
+  public String execute(String[] args) {
+    return execute();
   }
 }

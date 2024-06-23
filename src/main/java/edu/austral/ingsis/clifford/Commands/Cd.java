@@ -6,7 +6,7 @@ import edu.austral.ingsis.clifford.Directory;
 public class Cd implements Command {
   private final Directory root;
   private Directory currentDirectory;
-  private final String path;
+  private String path;
 
   public Cd(Directory root, Directory currentDirectory, String path) {
     this.root = root;
@@ -18,11 +18,24 @@ public class Cd implements Command {
   public String execute() {
     Directory targetDirectory = resolvePath(path);
     if (targetDirectory != null) {
-      currentDirectory = targetDirectory;
+      currentDirectory = targetDirectory; // Update current directory
       return "Moved to directory: '" + targetDirectory.getName() + "'";
     } else {
       throw new IllegalArgumentException("Invalid directory");
     }
+  }
+
+  @Override
+  public String execute(String[] args) {
+    if (args.length != 1) {
+      throw new IllegalArgumentException("Invalid arguments");
+    }
+    return execute(args[0]);
+  }
+
+  public String execute(String newPath) {
+    this.path = newPath;
+    return execute();
   }
 
   private Directory resolvePath(String path) {

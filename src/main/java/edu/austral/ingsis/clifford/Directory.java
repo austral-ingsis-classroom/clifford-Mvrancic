@@ -10,19 +10,17 @@ public class Directory implements FileSystem {
     private final List<FileSystem> children;
 
     public Directory(String name, Directory parent) {
-        this.name = name;
+        this.name = (name != null) ? name.trim() : "";
         this.parent = parent;
         this.children = new ArrayList<>();
-        if (parent != null) {
-            parent.addChild(this);
-        }
     }
 
     public Directory(String name) {
-        this.name = name;
+        this.name = (name != null) ? name.trim() : "";
         this.parent = null;
         this.children = new ArrayList<>();
     }
+
 
     @Override
     public String getName() {
@@ -31,7 +29,11 @@ public class Directory implements FileSystem {
 
     @Override
     public String getPath() {
-        return parent == null ? "/" : parent.getPath() + "/" + name;
+        if (parent == null) {
+            return "/" + name;
+        } else {
+            return parent.getPath() + "/" + name;
+        }
     }
 
     public Directory getParent() {
@@ -43,23 +45,26 @@ public class Directory implements FileSystem {
     }
 
     public String addChild(FileSystem fileSystem) {
-        for (FileSystem child : children) {
-            if (child.getName().equals(fileSystem.getName())) {
-                return "Error: Item already exists";
-            }
+        if (findChildByName(fileSystem.getName()) != null) {
+            return "'" + fileSystem.getName() + "' directory already exists";
         }
         children.add(fileSystem);
-        return "'" + fileSystem.getName() + "' created";
+        return "'" + fileSystem.getName() + "' directory created";
     }
 
     public void removeChild(FileSystem fileSystem) {
         children.remove(fileSystem);
     }
 
+
     public Directory getChildByName(String name) {
+        return (Directory) findChildByName(name);
+    }
+
+    FileSystem findChildByName(String name) {
         for (FileSystem child : children) {
-            if (child.getName().equals(name) && child instanceof Directory) {
-                return (Directory) child;
+            if (child.getName().equals(name)) {
+                return child;
             }
         }
         return null;
@@ -71,12 +76,14 @@ public class Directory implements FileSystem {
             items.add(child.getName());
         }
         if (order != null) {
-            if (order.equals("asc")) {
-                Collections.sort(items);
-            } else if (order.equals("desc")) {
-                Collections.sort(items, Collections.reverseOrder());
+            switch (order) {
+                case "asc" -> Collections.sort(items);
+                case "desc" -> Collections.sort(items, Collections.reverseOrder());
+                default -> {
+                }
             }
         }
         return items;
     }
+
 }

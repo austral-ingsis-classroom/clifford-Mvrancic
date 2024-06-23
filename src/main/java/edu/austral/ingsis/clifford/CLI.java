@@ -1,147 +1,121 @@
 package edu.austral.ingsis.clifford;
 
-import edu.austral.ingsis.clifford.Commands.*;
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CLI {
-  private Directory root;
   private Directory currentDirectory;
 
-  public CLI(Directory root) {
-    this.root = root;
-    this.currentDirectory = root;
+  public CLI(Directory rootDirectory) {
+    this.currentDirectory = rootDirectory;
   }
 
-  public String executeCommand(String input) {
-    String[] parts = input.split(" ");
-    String commandName = parts[0];
-    String[] args = new String[parts.length - 1];
-    System.arraycopy(parts, 1, args, 0, parts.length - 1);
-
-    try {
-      Command command = null;
-      switch (commandName) {
-        case "ls":
-          String order = args.length > 0 && args[0].startsWith("--ord=") ? args[0].split("=")[1] : null;
-          command = new Ls(currentDirectory, order);
-          break;
-        case "cd":
-          if (args.length != 1) {
-            throw new IllegalArgumentException("Invalid arguments");
-          }
-          command = new Cd(root, currentDirectory, args[0]);
-          break;
-        case "touch":
-          if (args.length != 1) {
-            throw new IllegalArgumentException("Invalid arguments");
-          }
-          command = new Touch(currentDirectory, args[0]);
-          break;
-        case "mkdir":
-          if (args.length != 1) {
-            throw new IllegalArgumentException("Invalid arguments");
-          }
-          command = new Mkdir(currentDirectory, args[0]);
-          break;
-        case "rm":
-          boolean recursive = false;
-          String name;
-          if (args.length == 2 && args[0].equals("--recursive")) {
-            recursive = true;
-            name = args[1];
-          } else if (args.length == 1) {
-            name = args[0];
-          } else {
-            throw new IllegalArgumentException("Invalid arguments");
-          }
-          command = new Rm(currentDirectory, name, recursive);
-          break;
-        case "pwd":
-          command = new Pwd(root, currentDirectory);
-          break;
-        default:
-          throw new IllegalArgumentException("Unknown command");
-      }
-
-      if (command != null) {
-        String output = command.execute();
-        if (output != null && !output.isEmpty()) {
-          System.out.println(output);
-        }
-      }
-    } catch (Exception e) {
-      System.err.println(e.getMessage());
+  public List<String> executeCommands(List<String> commands) {
+    List<String> results = new ArrayList<>();
+    for (String command : commands) {
+      String result = executeCommand(command);
+      results.add(result);
     }
-    return "";
+    return results;
   }
 
-  public List<String> list(String directoryName) {
-    Directory directory = getDirectory(directoryName);
-    return directory.getChildren().stream()
-            .map(FileSystem::getName)
-            .collect(Collectors.toList());
+  private String executeCommand(String command) {
+    String[] parts = command.split("\\s+");
+    String cmd = parts[0];
+    String[] args = Arrays.copyOfRange(parts, 1, parts.length);
+
+    switch (cmd) {
+      case "ls":
+        return listItems(args);
+      case "mkdir":
+        return makeDirectory(args);
+      case "cd":
+        return changeDirectory(args);
+      case "pwd":
+        return printWorkingDirectory();
+      case "touch":
+        return createFile(args);
+      case "rm":
+        return remove(args);
+      default:
+        return "Unknown command";
+    }
   }
 
-  public String changeDirectory(String path) {
-    if (path.equals("..")) {
-      if (currentDirectory.getParent() != null) {
-        currentDirectory = currentDirectory.getParent();
-        return "Moved to directory '" + currentDirectory.getName() + "'";
-      } else {
-        return "Error: No parent directory";
-      }
-    }
-    if (currentDirectory == null) {
-      return "Error: Directory not found";
-    }
-    String[] pathArray = path.split("/");
-    boolean directoryFound = Arrays.stream(pathArray).allMatch(dir -> {
-      Directory nextDirectory = currentDirectory.getChildByName(dir);
-      if (nextDirectory != null) {
-        currentDirectory = nextDirectory;
-        return true;
-      } else {
-        return false;
-      }
-    });
-    if (directoryFound) {
-      return "Moved to directory '" + currentDirectory.getName() + "'";
+  private String listItems(String[] args) {
+    if (args.length > 0 && args[0].equals("--ord=asc")) {
+      return String.join(" ", currentDirectory.listItems("asc"));
+    } else if (args.length > 0 && args[0].equals("--ord=desc")) {
+      return String.join(" ", currentDirectory.listItems("desc"));
     } else {
-      return "Error: Directory not found";
+      return String.join(" ", currentDirectory.listItems(null));
     }
   }
 
-  public void createFile(String fileName) {
-    File file = new File(fileName, this.currentDirectory);
-    this.currentDirectory.addChild(file);
+  private String makeDirectory(String[] args) {
+    if (args.length > 0) {
+      String name = args[0];
+      Directory newDir = new Directory(name, currentDirectory);
+      String result = currentDirectory.addChild(newDir);
+      return result;
+    }
+    return "Invalid command";
   }
 
-  public String createDirectory(String directoryName) {
-    Directory directory = new Directory(directoryName, this.currentDirectory);
-    return this.currentDirectory.addChild(directory);
+  private String changeDirectory(String[] args) {
+    if (args.length > 0) {
+      String dirName = args[0];
+      Directory newDir;
+      if (dirName.equals("..")) {
+        newDir = currentDirectory.getParent();
+      } else {
+        newDir = currentDirectory.getChildByName(dirName);
+      }
+
+      if (newDir != null) {
+        currentDirectory = newDir;
+        return "moved to directory '" + dirName + "'";
+      } else {
+        return "'" + dirName + "' directory does not exist";
+      }
+    }
+    return "Invalid command";
   }
 
-  public void remove(String name) {
-    FileSystem item = getItem(name);
-    this.currentDirectory.removeChild(item);
+  private String printWorkingDirectory() {
+    return currentDirectory.getPath();
   }
 
-  private Directory getDirectory(String name) {
-    return this.currentDirectory.getChildren().stream()
-            .filter(item -> item.getName().equals(name) && item instanceof Directory)
-            .map(item -> (Directory) item)
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Directory not found: " + name));
+  private String createFile(String[] args) {
+    if (args.length > 0) {
+      String fileName = args[0];
+      // Assume creating a file here, adjust as per your File implementation
+      File newFile = new File(fileName, currentDirectory);
+      String result = currentDirectory.addChild(newFile);
+      return result;
+    }
+    return "Invalid command";
   }
 
-  private FileSystem getItem(String name) {
-    return this.currentDirectory.getChildren().stream()
-            .filter(item -> item.getName().equals(name))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Item not found: " + name));
+  private String remove(String[] args) {
+    if (args.length > 0) {
+      String name = args[0];
+      FileSystem child = currentDirectory.findChildByName(name);
+      if (child == null) {
+        return "cannot remove '" + name + "', does not exist";
+      } else if (child instanceof Directory) {
+        if (args.length > 1 && args[1].equals("--recursive")) {
+          currentDirectory.removeChild(child);
+          return "'" + name + "' removed";
+        } else {
+          return "cannot remove '" + name + "', is a directory";
+        }
+      } else {
+        currentDirectory.removeChild(child);
+        return "'" + name + "' removed";
+      }
+    }
+    return "Invalid command";
   }
 }

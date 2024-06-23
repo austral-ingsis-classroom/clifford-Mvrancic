@@ -5,9 +5,11 @@ public class File implements FileSystem {
     private final Directory parent;
 
     public File(String name, Directory parent) {
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("File name cannot be null or empty");
+        }
+        this.name = name.trim();
         this.parent = parent;
-        parent.addChild(this);
     }
 
     @Override
@@ -17,6 +19,10 @@ public class File implements FileSystem {
 
     @Override
     public String getPath() {
-        return parent.getPath() + "/" + name;
+        if (parent == null) {
+            return "/" + name;
+        } else {
+            return parent.getPath() + "/" + name;
+        }
     }
 }
