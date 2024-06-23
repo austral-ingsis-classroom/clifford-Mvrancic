@@ -79,9 +79,14 @@ public class Directory implements FileSystem {
     }
     if (order != null) {
       switch (order) {
-        case "asc" -> Collections.sort(items);
-        case "desc" -> Collections.sort(items, Collections.reverseOrder());
-        default -> {}
+        case "asc":
+          Collections.sort(items);
+          break;
+        case "desc":
+          Collections.sort(items, Collections.reverseOrder());
+          break;
+        default:
+          break;
       }
     }
     return items;
