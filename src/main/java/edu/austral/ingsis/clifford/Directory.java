@@ -31,7 +31,12 @@ public class Directory implements FileSystem {
     if (parent == null) {
       return "/" + name;
     } else {
-      return parent.getPath() + name;
+      // Check if parent path is root ("/"), if so, don't add an extra "/"
+      if (parent.getPath().equals("/")) {
+        return parent.getPath() + name;
+      } else {
+        return parent.getPath() + "/" + name;
+      }
     }
   }
 
